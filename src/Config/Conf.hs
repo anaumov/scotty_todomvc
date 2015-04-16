@@ -15,7 +15,6 @@ import qualified Data.Configurator.Types as CT
 
 type Port = Int
 data Environment = Development | Other
--- {::} - что за запись?
 data AppConfig = AppConfig { hcPort :: Port
                             , hcEnvironment :: Environment}
 
