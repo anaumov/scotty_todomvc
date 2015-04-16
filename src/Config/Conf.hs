@@ -1,9 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Config.Conf
-    ( HttpConfig(..)
+    ( AppConfig(..)
+    , Environment(..)
     , configFiles
-    , httpConfig
+    , appConfig
     , C.load
     )
 where
@@ -13,16 +14,26 @@ import qualified Data.Configurator as C
 import qualified Data.Configurator.Types as CT
 
 type Port = Int
-data HttpConfig = HttpConfig { hcPort :: Port}
+data Environment = Development | Other
 -- {::} - что за запись?
+data AppConfig = AppConfig { hcPort :: Port
+                            , hcEnvironment :: Environment}
+
+-- в чем разница между data и type?
 
 configFiles :: [C.Worth FilePath]
 configFiles = [C.Required "config/config.cfg"]
 
-httpConfig :: CT.Config -> IO HttpConfig
-httpConfig c = do
+appConfig :: CT.Config -> IO AppConfig
+appConfig c = do
     let config = C.subconfig "http" c
     port <- C.require config "port"
-    return $ HttpConfig port
+    appEnv <- C.require c "environment"
+    return $ AppConfig port (getEnvirinment appEnv)
+
+getEnvirinment :: String -> Environment
+getEnvirinment env = case env of
+                        "development" -> Development
+                        _ -> Other
 
 -- зачем return?
